@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2018, starobinskii
+Copyright (c) 2018, Egor Starobinskii, Nikita Mushchak
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
