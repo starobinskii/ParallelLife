@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <ai>
 
 #include <mpi.h>
 
@@ -8,7 +9,11 @@
 #include "calcmodule.hpp"
 
 
-void life(const std::size_t finalStep, const size_t dim){
+void parallelLife(
+    const std::size_t finalStep,
+    const size_t dim,
+    bool showSteps
+){
     int *field = new int[dim * dim];
     int *field1 = new int[dim * dim];
     
@@ -19,7 +24,6 @@ void life(const std::size_t finalStep, const size_t dim){
         }
     }
     
-    MPI_Init(NULL, NULL);
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     int rank;
@@ -37,6 +41,13 @@ void life(const std::size_t finalStep, const size_t dim){
     std::size_t step = 1;
     std::size_t part = 1;
     std::size_t index = 0;
+    
+    std::chrono::high_resolution_clock::time_point startTime;
+    std::chrono::high_resolution_clock::time_point finishTime;
+    
+    if(0 == rank){
+        startTime = ai::time();
+    }
      
     while(finalStep >= step){
         MPI_Bcast(field, dim * dim, MPI_INT, 0, MPI_COMM_WORLD);
@@ -83,7 +94,15 @@ void life(const std::size_t finalStep, const size_t dim){
     }
     
     if(0 == rank){
+        finishTime = ai::time();
+    }
+    
+    if(0 == rank && showSteps){
         ShowField(field, dim);
+    }
+    
+    if(0 == rank){
+        ai::printDuration(startTime, finishTime);
     }
 
         
@@ -127,8 +146,6 @@ void life(const std::size_t finalStep, const size_t dim){
     //                 sleep = false;
     //         }
     // }
-    
-    MPI_Finalize();
     
     delete [] field;
     delete [] field1;
